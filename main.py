@@ -1,11 +1,11 @@
 import requests, random, string, time
 
+#------------#
 
-
-names =  10 # Amount of usernames
-
+names =  10 # Amount of usernames to save
 length =  5 # Length of usernames
 
+#------------#
 
 
 def randomword(length):
@@ -23,22 +23,20 @@ class bcolors:
 	UNDERLINE = '\033[4m'
 	
 
-i = 0
-while i < names:
+Found = 0
+while Found < names:
 	try:
 		user = randomword(length)
-		
-		print(f'{bcolors.FAIL}[-] {user} {bcolors.ENDC}')
-		
 		Data = requests.get(f'https://auth.roblox.com/v1/usernames/validate?request.username={user}&request.birthday=1337-04-20')
 		
 		if int(Data.json()['code']) == 0:
-			
-			i += 1
-			print(f"{bcolors.OKBLUE}[+] Found Username: {user} {bcolors.ENDC}")
+			Found += 1
+			print(f"{bcolors.OKBLUE}[{Found}/{names}] [+] Found Username: {user} {bcolors.ENDC}")
 			
 			with open('valid.txt','a') as f:
 				f.write(f"{user}\n")
+		else:
+			print(f'{bcolors.FAIL}[-] {user} {bcolors.ENDC}')
 				
 	except Exception as e:
 		print('Error:', e)

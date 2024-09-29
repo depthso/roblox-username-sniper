@@ -1,16 +1,12 @@
-import requests, random, string, time
-
-#------------#
-
 names =  10 # Amount of usernames to save
 length =  5 # Length of usernames
+file = 'valid.txt' # Automatically creates file
 
 #------------#
 
+import requests, random, string, time
 
-def randomword(length):
-   letters = string.ascii_lowercase + string.digits
-   return ''.join(random.choice(letters) for i in range(length))
+Found = 0
 
 class bcolors:
 	HEADER = '\033[95m'
@@ -21,22 +17,41 @@ class bcolors:
 	ENDC = '\033[0m'
 	BOLD = '\033[1m'
 	UNDERLINE = '\033[4m'
-	
 
-Found = 0
+def Success(Username):
+	print(f"{bcolors.OKBLUE}[{Found}/{names}] [+] Found Username: {Username} {bcolors.ENDC}")
+
+	with open(file, 'a+') as f:
+		f.write(f"{Username}\n")
+
+def Taken(Username):
+	print(f'{bcolors.FAIL}[-] {user} {bcolors.ENDC}')
+
+def MakeUsername(length):
+   letters = string.ascii_lowercase + string.digits
+   return ''.join(random.choice(letters) for i in range(length))
+
+def CheckUsername(Username):
+	Birthday = '1999-04-20'
+	Url = f'https://auth.roblox.com/v1/usernames/validate?request.username={Username}&request.birthday={Birthday}'
+	
+	Data = requests.get(Url)
+	Json = Data.json()
+
+	Code = Json['code']
+	return Code
+
+# Check usernames loop
 while Found < names:
 	try:
-		user = randomword(length)
-		Data = requests.get(f'https://auth.roblox.com/v1/usernames/validate?request.username={user}&request.birthday=1337-04-20')
+		Username = MakeUsername(length)
+		Code = CheckUsername(Username)
 		
-		if int(Data.json()['code']) == 0:
+		if Code == 0:
 			Found += 1
-			print(f"{bcolors.OKBLUE}[{Found}/{names}] [+] Found Username: {user} {bcolors.ENDC}")
-			
-			with open('valid.txt','a') as f:
-				f.write(f"{user}\n")
+			Success(Username)
 		else:
-			print(f'{bcolors.FAIL}[-] {user} {bcolors.ENDC}')
+			Taken(Username)
 				
 	except Exception as e:
 		print('Error:', e)
